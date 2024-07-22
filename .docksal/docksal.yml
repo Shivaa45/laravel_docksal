@@ -1,0 +1,39 @@
+version: "2.1"
+
+services:
+  web:
+    image: docksal/web:2.3-apache2.4
+    volumes:
+      - ${PROJECT_ROOT}:/var/www
+    environment:
+      - APACHE_DOCUMENTROOT=/var/www/public
+
+  cli:
+    image: docksal/cli:2.12-php7.4
+    volumes:
+      - ${PROJECT_ROOT}:/var/www
+    environment:
+      - VIRTUAL_HOST=laravel.docksal
+      - DOCROOT=public
+      - MYSQL_DATABASE=default
+      - MYSQL_USER=default
+      - MYSQL_PASSWORD=default
+
+  db:
+    image: docksal/db:1.4-mysql-5.7
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=default
+      - MYSQL_USER=default
+      - MYSQL_PASSWORD=default
+
+# Add a custom command to run Laravel migrations
+commands:
+  fin init:
+    - fin project start
+    - fin exec composer install
+    - fin exec php artisan key:generate
+    - fin exec php artisan migrate
+
+volumes:
+  docksal-db-data:
